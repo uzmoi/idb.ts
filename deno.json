@@ -1,0 +1,29 @@
+{
+  "name": "@uzmoi/idb",
+  "version": "0.1.0",
+  "exports": "./src/index.ts",
+  "publish": {
+    "include": [
+      "src/**/*.ts",
+      "LICENSE",
+      "README.md",
+      "deno.json",
+      "package.json"
+    ],
+    "exclude": ["**/*.test.ts"]
+  },
+  "tasks": {
+    "dev": "deno test --watch",
+    "build": "tsup"
+  },
+  "license": "MIT",
+  "imports": {
+    "@uzmoi/ut": "jsr:@uzmoi/ut@^0.1.2"
+  },
+  "exclude": ["dist/"],
+  "compilerOptions": {
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "lib": ["esnext", "dom", "dom.iterable"]
+  }
+}

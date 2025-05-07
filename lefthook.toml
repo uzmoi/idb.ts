@@ -1,0 +1,18 @@
+
+[pre-commit]
+parallel = true
+
+[pre-commit.commands.deno-check]
+glob = "*.ts"
+run = "deno check --doc {staged_files}"
+
+[pre-commit.commands.deno-fmt]
+glob = "*.{ts,md,json,jsonc}"
+run = "deno fmt --check {staged_files}"
+
+[pre-commit.commands.deno-lint]
+glob = "*.ts"
+run = "deno lint {staged_files}"
+
+[pre-commit.commands.cSpell]
+run = "npx cspell lint --no-progress --no-must-find-files {staged_files}"

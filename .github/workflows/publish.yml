@@ -1,0 +1,64 @@
+name: Publish Package
+
+on:
+  push:
+    tags: [v*.*.*]
+
+jobs:
+  version:
+    outputs:
+      npm-version: ${{ steps.version.outputs.npm-version }}
+      jsr-version: ${{ steps.version.outputs.jsr-version }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            package.json
+            deno.json
+          sparse-checkout-cone-mode: false
+
+      - name: Read version
+        id: version
+        run: |
+          NPM_VERSION=$(jq -er '"/v" + .version' package.json)
+          JSR_VERSION=$(jq -er '"/v" + .version' deno.json)
+          echo "npm-version=${NPM_VERSION}" >> $GITHUB_OUTPUT
+          echo "jsr-version=${JSR_VERSION}" >> $GITHUB_OUTPUT
+
+  publish-npm:
+    needs: version
+    if: endsWith(github.ref, needs.version.outputs.npm-version)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v2
+      - uses: actions/setup-node@v4
+        with:
+          registry-url: https://registry.npmjs.org
+
+      - run: deno install
+      - run: deno run build
+
+      - run: npm publish --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-jsr:
+    needs: version
+    if: endsWith(github.ref, needs.version.outputs.jsr-version)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      # cspell:word denoland
+      - uses: denoland/setup-deno@v2
+
+      - run: deno publish
