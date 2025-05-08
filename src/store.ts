@@ -1,11 +1,20 @@
 import { IdbCursor } from "./cursor.ts";
-import type { IdbType } from "./types.ts";
+import type {
+  IdbTransactionMode,
+  IdbType,
+  ReadonlyMode,
+  ReadWriteMode,
+  VersionChangeMode,
+} from "./types.ts";
 import { requestToPromise } from "./utils.ts";
 
 export type IdbQuery = IDBValidKey | IDBKeyRange;
 
-export abstract class IdbStore<out S extends IDBObjectStore | IDBIndex, out T>
-  implements IdbType<IDBObjectStore | IDBIndex> {
+export abstract class IdbStore<
+  out S extends IDBObjectStore | IDBIndex,
+  out T,
+  out Mode extends IdbTransactionMode,
+> implements IdbType<IDBObjectStore | IDBIndex> {
   /** @ignore */
   constructor(protected readonly store: S) {}
 
@@ -45,7 +54,7 @@ export abstract class IdbStore<out S extends IDBObjectStore | IDBIndex, out T>
   openCursor(
     query?: IdbQuery | null,
     direction?: IDBCursorDirection,
-  ): Promise<IdbCursor<T> | null> {
+  ): Promise<IdbCursor<T, Mode> | null> {
     const req = this.store.openCursor(query, direction);
     return IdbCursor.from(req as IDBRequest<IDBCursor | null>);
   }
@@ -53,13 +62,16 @@ export abstract class IdbStore<out S extends IDBObjectStore | IDBIndex, out T>
   openKeyCursor(
     query?: IdbQuery | null,
     direction?: IDBCursorDirection,
-  ): Promise<IdbCursor<void> | null> {
+  ): Promise<IdbCursor<void, Mode> | null> {
     const req = this.store.openKeyCursor(query, direction);
     return IdbCursor.from(req);
   }
 }
 
-export class IdbObjectStore<out T> extends IdbStore<IDBObjectStore, T>
+export class IdbObjectStore<
+  out T,
+  out Mode extends IdbTransactionMode = ReadonlyMode,
+> extends IdbStore<IDBObjectStore, T, Mode>
   implements IdbType<Omit<IDBObjectStore, "transaction">> {
   get autoIncrement(): boolean {
     return this.store.autoIncrement;
@@ -70,43 +82,56 @@ export class IdbObjectStore<out T> extends IdbStore<IDBObjectStore, T>
   }
 
   createIndex(
+    this: IdbObjectStore<T, VersionChangeMode>,
     name: string,
     keyPath: string | Iterable<string>,
     options?: IDBIndexParameters,
-  ): IdbIndex<T> {
+  ): IdbIndex<T, Mode> {
     return new IdbIndex(this.store.createIndex(name, keyPath, options));
   }
 
-  deleteIndex(name: string): void {
+  deleteIndex(this: IdbObjectStore<T, VersionChangeMode>, name: string): void {
     this.store.deleteIndex(name);
   }
 
-  index(name: string): IdbIndex<T> {
+  index(name: string): IdbIndex<T, Mode> {
     return new IdbIndex(this.store.index(name));
   }
 
-  add(value: T, key?: IDBValidKey): Promise<IDBValidKey> {
+  add(
+    this: IdbObjectStore<T, ReadWriteMode>,
+    value: T,
+    key?: IDBValidKey,
+  ): Promise<IDBValidKey> {
     const req = this.store.add(value, key);
     return requestToPromise(req);
   }
 
-  put(value: T, key?: IDBValidKey): Promise<IDBValidKey> {
+  put(
+    this: IdbObjectStore<T, ReadWriteMode>,
+    value: T,
+    key?: IDBValidKey,
+  ): Promise<IDBValidKey> {
     const req = this.store.put(value, key);
     return requestToPromise(req);
   }
 
-  delete(query: IdbQuery): Promise<void> {
+  delete(
+    this: IdbObjectStore<T, ReadWriteMode>,
+    query: IdbQuery,
+  ): Promise<void> {
     const req = this.store.delete(query);
     return requestToPromise(req);
   }
 
-  clear(): Promise<void> {
+  clear(this: IdbObjectStore<T, ReadWriteMode>): Promise<void> {
     const req = this.store.clear();
     return requestToPromise(req);
   }
 }
 
-export class IdbIndex<out T> extends IdbStore<IDBIndex, T>
+export class IdbIndex<out T, out Mode extends IdbTransactionMode = ReadonlyMode>
+  extends IdbStore<IDBIndex, T, Mode>
   implements IdbType<Omit<IDBIndex, "objectStore">> {
   get unique(): boolean {
     return this.store.unique;

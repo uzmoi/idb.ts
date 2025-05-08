@@ -1,6 +1,6 @@
 import type { NormalizeObject } from "@uzmoi/ut/types";
 import { IdbTransaction } from "./transaction.ts";
-import type { IdbType } from "./types.ts";
+import type { IdbTransactionModeMap, IdbType } from "./types.ts";
 
 export class Idb<out T>
   implements
@@ -24,11 +24,17 @@ export class Idb<out T>
     this.db.close();
   }
 
-  transaction<StoreName extends Extract<keyof T, string>>(
+  transaction<
+    StoreName extends Extract<keyof T, string>,
+    Mode extends Exclude<IDBTransactionMode, "versionchange"> = "readonly",
+  >(
     storeNames: StoreName | Iterable<StoreName>,
-    mode?: IDBTransactionMode,
+    mode?: Mode,
     options?: IDBTransactionOptions,
-  ): IdbTransaction<NormalizeObject<Pick<T, StoreName>>> {
+  ): IdbTransaction<
+    NormalizeObject<Pick<T, StoreName>>,
+    IdbTransactionModeMap[Mode]
+  > {
     const transaction = this.db.transaction(storeNames, mode, options);
     return new IdbTransaction(transaction);
   }

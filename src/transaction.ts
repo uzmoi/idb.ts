@@ -1,8 +1,10 @@
 import { IdbObjectStore } from "./store.ts";
-import type { IdbType } from "./types.ts";
+import type { IdbTransactionMode, IdbType, ReadonlyMode } from "./types.ts";
 
-export class IdbTransaction<out T>
-  implements IdbType<Omit<IDBTransaction, "error" | "db">> {
+export class IdbTransaction<
+  out T,
+  out Mode extends IdbTransactionMode = ReadonlyMode,
+> implements IdbType<Omit<IDBTransaction, "error" | "db">> {
   /** @ignore */
   constructor(private readonly tx: IDBTransaction) {}
 
@@ -28,7 +30,7 @@ export class IdbTransaction<out T>
 
   objectStore<StoreName extends Extract<keyof T, string>>(
     name: StoreName,
-  ): IdbObjectStore<T[StoreName]> {
+  ): IdbObjectStore<T[StoreName], Mode> {
     return new IdbObjectStore(this.tx.objectStore(name));
   }
 }
