@@ -6,6 +6,7 @@ export type IdbQuery = IDBValidKey | IDBKeyRange;
 
 export abstract class IdbStore<out S extends IDBObjectStore | IDBIndex, out T>
   implements IdbType<IDBObjectStore | IDBIndex> {
+  /** @ignore */
   constructor(protected readonly store: S) {}
 
   get name(): string {

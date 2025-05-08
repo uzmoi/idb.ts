@@ -3,6 +3,7 @@ import type { IdbType } from "./types.ts";
 
 export class IdbTransaction<out T>
   implements IdbType<Omit<IDBTransaction, "error" | "db">> {
+  /** @ignore */
   constructor(private readonly tx: IDBTransaction) {}
 
   get mode(): IDBTransactionMode {

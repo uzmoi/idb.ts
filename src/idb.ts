@@ -5,6 +5,7 @@ import type { IdbType } from "./types.ts";
 export class Idb<out T>
   implements
     IdbType<Omit<IDBDatabase, "createObjectStore" | "deleteObjectStore">> {
+  /** @ignore */
   private constructor(private readonly db: IDBDatabase) {}
 
   get name(): string {

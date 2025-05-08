@@ -10,6 +10,7 @@ export class IdbCursor<out T>
     return cursor && new IdbCursor(cursor);
   }
 
+  /** @ignore */
   private constructor(private readonly cursor: IDBCursor) {}
 
   get direction(): IDBCursorDirection {
