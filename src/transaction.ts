@@ -1,7 +1,7 @@
 import { IdbObjectStore } from "./store.ts";
 import type { IdbType } from "./types.ts";
 
-export class IdbTransaction
+export class IdbTransaction<out T>
   implements IdbType<Omit<IDBTransaction, "error" | "db">> {
   constructor(private readonly tx: IDBTransaction) {}
 
@@ -25,7 +25,9 @@ export class IdbTransaction
     this.tx.commit();
   }
 
-  objectStore(name: string): IdbObjectStore {
+  objectStore<StoreName extends Extract<keyof T, string>>(
+    name: StoreName,
+  ): IdbObjectStore<T[StoreName]> {
     return new IdbObjectStore(this.tx.objectStore(name));
   }
 }

@@ -4,7 +4,7 @@ import { requestToPromise } from "./utils.ts";
 
 export type IdbQuery = IDBValidKey | IDBKeyRange;
 
-export abstract class IdbStore<out S extends IDBObjectStore | IDBIndex>
+export abstract class IdbStore<out S extends IDBObjectStore | IDBIndex, out T>
   implements IdbType<IDBObjectStore | IDBIndex> {
   constructor(protected readonly store: S) {}
 
@@ -21,12 +21,12 @@ export abstract class IdbStore<out S extends IDBObjectStore | IDBIndex>
     return requestToPromise(req);
   }
 
-  get(query: IdbQuery): Promise<unknown> {
+  get(query: IdbQuery): Promise<T | undefined> {
     const req = this.store.get(query);
     return requestToPromise(req);
   }
 
-  getAll(query?: IdbQuery | null, count?: number): Promise<unknown[]> {
+  getAll(query?: IdbQuery | null, count?: number): Promise<T[]> {
     const req = this.store.getAll(query, count);
     return requestToPromise(req);
   }
@@ -44,7 +44,7 @@ export abstract class IdbStore<out S extends IDBObjectStore | IDBIndex>
   openCursor(
     query?: IdbQuery | null,
     direction?: IDBCursorDirection,
-  ): Promise<IdbCursor | null> {
+  ): Promise<IdbCursor<T> | null> {
     const req = this.store.openCursor(query, direction);
     return IdbCursor.from(req as IDBRequest<IDBCursor | null>);
   }
@@ -52,13 +52,13 @@ export abstract class IdbStore<out S extends IDBObjectStore | IDBIndex>
   openKeyCursor(
     query?: IdbQuery | null,
     direction?: IDBCursorDirection,
-  ): Promise<IdbCursor | null> {
+  ): Promise<IdbCursor<void> | null> {
     const req = this.store.openKeyCursor(query, direction);
     return IdbCursor.from(req);
   }
 }
 
-export class IdbObjectStore extends IdbStore<IDBObjectStore>
+export class IdbObjectStore<out T> extends IdbStore<IDBObjectStore, T>
   implements IdbType<Omit<IDBObjectStore, "transaction">> {
   get autoIncrement(): boolean {
     return this.store.autoIncrement;
@@ -72,7 +72,7 @@ export class IdbObjectStore extends IdbStore<IDBObjectStore>
     name: string,
     keyPath: string | Iterable<string>,
     options?: IDBIndexParameters,
-  ): IdbIndex {
+  ): IdbIndex<T> {
     return new IdbIndex(this.store.createIndex(name, keyPath, options));
   }
 
@@ -80,16 +80,16 @@ export class IdbObjectStore extends IdbStore<IDBObjectStore>
     this.store.deleteIndex(name);
   }
 
-  index(name: string): IdbIndex {
+  index(name: string): IdbIndex<T> {
     return new IdbIndex(this.store.index(name));
   }
 
-  add(value: unknown, key?: IDBValidKey): Promise<IDBValidKey> {
+  add(value: T, key?: IDBValidKey): Promise<IDBValidKey> {
     const req = this.store.add(value, key);
     return requestToPromise(req);
   }
 
-  put(value: unknown, key?: IDBValidKey): Promise<IDBValidKey> {
+  put(value: T, key?: IDBValidKey): Promise<IDBValidKey> {
     const req = this.store.put(value, key);
     return requestToPromise(req);
   }
@@ -105,7 +105,7 @@ export class IdbObjectStore extends IdbStore<IDBObjectStore>
   }
 }
 
-export class IdbIndex extends IdbStore<IDBIndex>
+export class IdbIndex<out T> extends IdbStore<IDBIndex, T>
   implements IdbType<Omit<IDBIndex, "objectStore">> {
   get unique(): boolean {
     return this.store.unique;

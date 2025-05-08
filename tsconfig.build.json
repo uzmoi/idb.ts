@@ -3,6 +3,7 @@
   "include": ["src"],
   "exclude": ["**/*.test.ts"],
   "compilerOptions": {
+    "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
