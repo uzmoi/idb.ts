@@ -27,44 +27,39 @@ export abstract class IdbStore<
   }
 
   count(query?: IdbQuery): Promise<number> {
-    const req = this.store.count(query);
-    return requestToPromise(req);
+    return requestToPromise(this.store.count(query));
   }
 
   get(query: IdbQuery): Promise<T | undefined> {
-    const req = this.store.get(query);
-    return requestToPromise(req);
+    return requestToPromise(this.store.get(query));
   }
 
   getAll(query?: IdbQuery | null, count?: number): Promise<T[]> {
-    const req = this.store.getAll(query, count);
-    return requestToPromise(req);
+    return requestToPromise(this.store.getAll(query, count));
   }
 
   getAllKeys(query?: IdbQuery | null, count?: number): Promise<IDBValidKey[]> {
-    const req = this.store.getAllKeys(query, count);
-    return requestToPromise(req);
+    return requestToPromise(this.store.getAllKeys(query, count));
   }
 
   getKey(query: IdbQuery): Promise<IDBValidKey | undefined> {
-    const req = this.store.getKey(query);
-    return requestToPromise(req);
+    return requestToPromise(this.store.getKey(query));
   }
 
   openCursor(
     query?: IdbQuery | null,
     direction?: IDBCursorDirection,
   ): Promise<IdbCursor<T, Mode> | null> {
-    const req = this.store.openCursor(query, direction);
-    return IdbCursor.from(req as IDBRequest<IDBCursor | null>);
+    return IdbCursor.from(
+      this.store.openCursor(query, direction) as IDBRequest<IDBCursor | null>,
+    );
   }
 
   openKeyCursor(
     query?: IdbQuery | null,
     direction?: IDBCursorDirection,
   ): Promise<IdbCursor<void, Mode> | null> {
-    const req = this.store.openKeyCursor(query, direction);
-    return IdbCursor.from(req);
+    return IdbCursor.from(this.store.openKeyCursor(query, direction));
   }
 }
 
@@ -103,8 +98,7 @@ export class IdbObjectStore<
     value: T,
     key?: IDBValidKey,
   ): Promise<IDBValidKey> {
-    const req = this.store.add(value, key);
-    return requestToPromise(req);
+    return requestToPromise(this.store.add(value, key));
   }
 
   put(
@@ -112,21 +106,18 @@ export class IdbObjectStore<
     value: T,
     key?: IDBValidKey,
   ): Promise<IDBValidKey> {
-    const req = this.store.put(value, key);
-    return requestToPromise(req);
+    return requestToPromise(this.store.put(value, key));
   }
 
   delete(
     this: IdbObjectStore<T, ReadWriteMode>,
     query: IdbQuery,
   ): Promise<void> {
-    const req = this.store.delete(query);
-    return requestToPromise(req);
+    return requestToPromise(this.store.delete(query));
   }
 
   clear(this: IdbObjectStore<T, ReadWriteMode>): Promise<void> {
-    const req = this.store.clear();
-    return requestToPromise(req);
+    return requestToPromise(this.store.clear());
   }
 }
 

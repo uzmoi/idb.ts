@@ -55,12 +55,10 @@ export class IdbCursor<
   }
 
   update(this: IdbCursor<T, ReadWriteMode>, value: T): Promise<IDBValidKey> {
-    const req = this.cursor.update(value);
-    return requestToPromise(req);
+    return requestToPromise(this.cursor.update(value));
   }
 
   delete(this: IdbCursor<T, ReadWriteMode>): Promise<void> {
-    const req = this.cursor.delete();
-    return requestToPromise(req);
+    return requestToPromise(this.cursor.delete());
   }
 }

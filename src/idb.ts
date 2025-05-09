@@ -46,7 +46,6 @@ export class Idb<out T>
     NormalizeObject<Pick<T, StoreName>>,
     IdbTransactionModeMap[Mode]
   > {
-    const transaction = this.db.transaction(storeNames, mode, options);
-    return new IdbTransaction(transaction);
+    return new IdbTransaction(this.db.transaction(storeNames, mode, options));
   }
 }
