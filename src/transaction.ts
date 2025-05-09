@@ -6,31 +6,31 @@ export class IdbTransaction<
   out Mode extends IdbTransactionMode = ReadonlyMode,
 > implements IdbType<Omit<IDBTransaction, "error" | "db">> {
   /** @ignore */
-  constructor(private readonly tx: IDBTransaction) {}
+  constructor(private readonly _inner: IDBTransaction) {}
 
   get mode(): IDBTransactionMode {
-    return this.tx.mode;
+    return this._inner.mode;
   }
 
   get durability(): IDBTransactionDurability {
-    return this.tx.durability;
+    return this._inner.durability;
   }
 
   get objectStoreNames(): DOMStringList {
-    return this.tx.objectStoreNames;
+    return this._inner.objectStoreNames;
   }
 
   abort(): void {
-    this.tx.abort();
+    this._inner.abort();
   }
 
   commit(): void {
-    this.tx.commit();
+    this._inner.commit();
   }
 
   objectStore<StoreName extends Extract<keyof T, string>>(
     name: StoreName,
   ): IdbObjectStore<T[StoreName], Mode> {
-    return new IdbObjectStore(this.tx.objectStore(name));
+    return new IdbObjectStore(this._inner.objectStore(name));
   }
 }

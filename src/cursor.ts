@@ -18,47 +18,47 @@ export class IdbCursor<
   }
 
   /** @ignore */
-  private constructor(private readonly cursor: IDBCursor) {}
+  private constructor(private readonly _inner: IDBCursor) {}
 
   get direction(): IDBCursorDirection {
-    return this.cursor.direction;
+    return this._inner.direction;
   }
 
   get key(): IDBValidKey {
-    return this.cursor.key;
+    return this._inner.key;
   }
 
   get primaryKey(): IDBValidKey {
-    return this.cursor.primaryKey;
+    return this._inner.primaryKey;
   }
 
   get value(): T {
-    return (this.cursor as IDBCursorWithValue).value;
+    return (this._inner as IDBCursorWithValue).value;
   }
 
   advance(count: number): Promise<IdbCursor<T, Mode> | null> {
-    this.cursor.advance(count);
-    return IdbCursor.from(this.cursor.request);
+    this._inner.advance(count);
+    return IdbCursor.from(this._inner.request);
   }
 
   continue(key?: IDBValidKey): Promise<IdbCursor<T, Mode> | null> {
-    this.cursor.continue(key);
-    return IdbCursor.from(this.cursor.request);
+    this._inner.continue(key);
+    return IdbCursor.from(this._inner.request);
   }
 
   continuePrimaryKey(
     key: IDBValidKey,
     primaryKey: IDBValidKey,
   ): Promise<IdbCursor<T, Mode> | null> {
-    this.cursor.continuePrimaryKey(key, primaryKey);
-    return IdbCursor.from(this.cursor.request);
+    this._inner.continuePrimaryKey(key, primaryKey);
+    return IdbCursor.from(this._inner.request);
   }
 
   update(this: IdbCursor<T, ReadWriteMode>, value: T): Promise<IDBValidKey> {
-    return requestToPromise(this.cursor.update(value));
+    return requestToPromise(this._inner.update(value));
   }
 
   delete(this: IdbCursor<T, ReadWriteMode>): Promise<void> {
-    return requestToPromise(this.cursor.delete());
+    return requestToPromise(this._inner.delete());
   }
 }

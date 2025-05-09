@@ -17,22 +17,22 @@ export class Idb<out T>
   }
 
   /** @ignore */
-  private constructor(private readonly db: IDBDatabase) {}
+  private constructor(private readonly _inner: IDBDatabase) {}
 
   get name(): string {
-    return this.db.name;
+    return this._inner.name;
   }
 
   get version(): number {
-    return this.db.version;
+    return this._inner.version;
   }
 
   get objectStoreNames(): DOMStringList {
-    return this.db.objectStoreNames;
+    return this._inner.objectStoreNames;
   }
 
   close(): void {
-    this.db.close();
+    this._inner.close();
   }
 
   transaction<
@@ -46,6 +46,8 @@ export class Idb<out T>
     NormalizeObject<Pick<T, StoreName>>,
     IdbTransactionModeMap[Mode]
   > {
-    return new IdbTransaction(this.db.transaction(storeNames, mode, options));
+    return new IdbTransaction(
+      this._inner.transaction(storeNames, mode, options),
+    );
   }
 }
