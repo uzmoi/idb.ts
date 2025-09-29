@@ -4,6 +4,7 @@
   "description": "",
   "type": "module",
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": "./dist/index.js"
   },
@@ -28,7 +29,7 @@
   "devDependencies": {
     "cspell": "^9.0.0",
     "lefthook": "^1.11.12",
-    "tsup": "^8.4.0",
+    "tsdown": "^0.15.5",
     "typescript": "^5.8.3"
   }
 }
