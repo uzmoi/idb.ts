@@ -1,11 +1,5 @@
 import { IdbCursor } from "./cursor.ts";
-import type {
-  IdbTransactionMode,
-  IdbType,
-  ReadonlyMode,
-  ReadWriteMode,
-  VersionChangeMode,
-} from "./types.ts";
+import type { IdbMode, IdbTransactionMode, IdbType } from "./types.ts";
 import { requestToPromise } from "./utils.ts";
 
 export type IdbQuery = IDBValidKey | IDBKeyRange;
@@ -65,7 +59,7 @@ export abstract class IdbStore<
 
 export class IdbObjectStore<
   out T,
-  out Mode extends IdbTransactionMode = ReadonlyMode,
+  out Mode extends IdbTransactionMode = IdbMode.Readonly,
 > extends IdbStore<IDBObjectStore, T, Mode>
   implements IdbType<Omit<IDBObjectStore, "transaction">> {
   get autoIncrement(): boolean {
@@ -77,7 +71,7 @@ export class IdbObjectStore<
   }
 
   createIndex(
-    this: IdbObjectStore<T, VersionChangeMode>,
+    this: IdbObjectStore<T, IdbMode.VersionChange>,
     name: string,
     keyPath: string | Iterable<string>,
     options?: IDBIndexParameters,
@@ -85,7 +79,10 @@ export class IdbObjectStore<
     return new IdbIndex(this._inner.createIndex(name, keyPath, options));
   }
 
-  deleteIndex(this: IdbObjectStore<T, VersionChangeMode>, name: string): void {
+  deleteIndex(
+    this: IdbObjectStore<T, IdbMode.VersionChange>,
+    name: string,
+  ): void {
     this._inner.deleteIndex(name);
   }
 
@@ -94,7 +91,7 @@ export class IdbObjectStore<
   }
 
   add(
-    this: IdbObjectStore<T, ReadWriteMode>,
+    this: IdbObjectStore<T, IdbMode.ReadWrite>,
     value: T,
     key?: IDBValidKey,
   ): Promise<IDBValidKey> {
@@ -102,7 +99,7 @@ export class IdbObjectStore<
   }
 
   put(
-    this: IdbObjectStore<T, ReadWriteMode>,
+    this: IdbObjectStore<T, IdbMode.ReadWrite>,
     value: T,
     key?: IDBValidKey,
   ): Promise<IDBValidKey> {
@@ -110,19 +107,21 @@ export class IdbObjectStore<
   }
 
   delete(
-    this: IdbObjectStore<T, ReadWriteMode>,
+    this: IdbObjectStore<T, IdbMode.ReadWrite>,
     query: IdbQuery,
   ): Promise<void> {
     return requestToPromise(this._inner.delete(query));
   }
 
-  clear(this: IdbObjectStore<T, ReadWriteMode>): Promise<void> {
+  clear(this: IdbObjectStore<T, IdbMode.ReadWrite>): Promise<void> {
     return requestToPromise(this._inner.clear());
   }
 }
 
-export class IdbIndex<out T, out Mode extends IdbTransactionMode = ReadonlyMode>
-  extends IdbStore<IDBIndex, T, Mode>
+export class IdbIndex<
+  out T,
+  out Mode extends IdbTransactionMode = IdbMode.Readonly,
+> extends IdbStore<IDBIndex, T, Mode>
   implements IdbType<Omit<IDBIndex, "objectStore">> {
   get unique(): boolean {
     return this._inner.unique;

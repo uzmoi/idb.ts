@@ -1,14 +1,9 @@
-import type {
-  IdbTransactionMode,
-  IdbType,
-  ReadonlyMode,
-  ReadWriteMode,
-} from "./types.ts";
+import type { IdbMode, IdbTransactionMode, IdbType } from "./types.ts";
 import { requestToPromise } from "./utils.ts";
 
 export class IdbCursor<
   out T,
-  out Mode extends IdbTransactionMode = ReadonlyMode,
+  out Mode extends IdbTransactionMode = IdbMode.Readonly,
 > implements IdbType<Omit<IDBCursorWithValue, "request" | "source">> {
   static async from<T, Mode extends IdbTransactionMode>(
     request: IDBRequest<IDBCursor | null>,
@@ -54,11 +49,14 @@ export class IdbCursor<
     return IdbCursor.from(this._inner.request);
   }
 
-  update(this: IdbCursor<T, ReadWriteMode>, value: T): Promise<IDBValidKey> {
+  update(
+    this: IdbCursor<T, IdbMode.ReadWrite>,
+    value: T,
+  ): Promise<IDBValidKey> {
     return requestToPromise(this._inner.update(value));
   }
 
-  delete(this: IdbCursor<T, ReadWriteMode>): Promise<void> {
+  delete(this: IdbCursor<T, IdbMode.ReadWrite>): Promise<void> {
     return requestToPromise(this._inner.delete());
   }
 }

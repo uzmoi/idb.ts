@@ -2,25 +2,27 @@ import type { IdbCursor } from "./cursor.ts";
 import type { IdbIndex, IdbObjectStore } from "./store.ts";
 import type { IdbTransaction } from "./transaction.ts";
 
-export interface ReadonlyMode {
-  readonly read: unique symbol;
-}
+export declare namespace IdbMode {
+  interface Readonly {
+    readonly read: unique symbol;
+  }
 
-export interface ReadWriteMode extends ReadonlyMode {
-  readonly write: unique symbol;
-}
+  interface ReadWrite extends Readonly {
+    readonly write: unique symbol;
+  }
 
-export interface VersionChangeMode extends ReadWriteMode {
-  readonly versionchange: unique symbol;
+  interface VersionChange extends ReadWrite {
+    readonly versionchange: unique symbol;
+  }
 }
 
 export type IdbTransactionMode =
   IdbTransactionModeMap[keyof IdbTransactionModeMap];
 
 export interface IdbTransactionModeMap {
-  readonly: ReadonlyMode;
-  readwrite: ReadWriteMode;
-  versionchange: VersionChangeMode;
+  readonly: IdbMode.Readonly;
+  readwrite: IdbMode.ReadWrite;
+  versionchange: IdbMode.VersionChange;
 }
 
 type IdbResult<T> = T extends IDBRequest<infer U> ? Promise<

@@ -1,9 +1,9 @@
 import { IdbObjectStore } from "./store.ts";
-import type { IdbTransactionMode, IdbType, ReadonlyMode } from "./types.ts";
+import type { IdbMode, IdbTransactionMode, IdbType } from "./types.ts";
 
 export class IdbTransaction<
   out T,
-  out Mode extends IdbTransactionMode = ReadonlyMode,
+  out Mode extends IdbTransactionMode = IdbMode.Readonly,
 > implements IdbType<Omit<IDBTransaction, "error" | "db">> {
   /** @ignore */
   constructor(private readonly _inner: IDBTransaction) {}
