@@ -1,7 +1,10 @@
 {
   "name": "@uzmoi/idb",
   "version": "0.1.0",
-  "exports": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts"
+  },
   "publish": {
     "include": [
       "src/**/*.ts",

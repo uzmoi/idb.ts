@@ -1,7 +1,7 @@
 import { defineConfig } from "tsdown";
 
 export default defineConfig({
-  entry: "src/index.ts",
+  entry: ["src/index.ts", "src/schema/index.ts"],
   tsconfig: "tsconfig.build.json",
   plugins: [
     // oxc minifier で mangleProps ができないため、暫定的にワークアラウンドで対応
